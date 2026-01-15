@@ -50,15 +50,17 @@ const Header = () => {
             <Link to="/contact">Liên hệ</Link>
           </li>
         </ul>
-        <ul className ="sign-in">
-            <li>
-              <Link to="/login">Đăng nhập</Link>
-            </li>
+        <div className="header-right">
+            <div className="search-box1">
+              <input placeholder="Find Your Favourite Pet Here" />
+              <button>🔍</button>
+            </div>
 
-            <li>
-                <Link to="/cart">Giỏ hàng</Link>
-            </li>
-        </ul>
+            <ul className="sign-in">
+              <li><Link to="/login">Đăng nhập</Link></li>
+              <li><Link to="/cart">Giỏ hàng</Link></li>
+            </ul>
+        </div>
       </nav>
     </header>
   );

@@ -10,38 +10,9 @@ const Header = () => {
           <li>
             <Link to="/">Home</Link>
           </li>
-
-          {/* Dropdown */}
-          <li className="dropdown">
-            <span className="dropdown-title">
-              bé pet▾
-            </span>
-
-            <ul className="dropdown-menu">
-              <li>
-                <Link to="/products/dog">các em chó</Link>
-              </li>
-              <li>
-                <Link to="/products/cat">các em mèo</Link>
-              </li>
-            </ul>
+          <li>
+            <Link to="/Information">Pet</Link>
           </li>
-          <li className ="dropdown">
-            <span className="dropdown-title">
-              sản phẩm ▾
-            </span>
-            <ul className="dropdown-menu">
-              <li>
-                <Link to="/category/food">Thức ăn</Link>
-              </li>
-              <li>
-                <Link to="/category/toys">Đồ chơi</Link>
-              </li>
-              <li>
-                <Link to="/category/accessories">Phụ kiện</Link>
-              </li>
-            </ul>
-         </li>
           <li>
             <Link to="/aboutus">About us</Link>
           </li>

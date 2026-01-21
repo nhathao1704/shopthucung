@@ -1,8 +1,5 @@
 import { useState } from "react";
-import {
-  searchDogByName,
-  getDogImageByBreedId,
-} from "../api/Dogapi.jsx";
+import { searchDogByName } from "../api/Dogapi.jsx";
 
 const Home = () => {
   const [keyword, setKeyword] = useState("");
@@ -18,26 +15,18 @@ const Home = () => {
       setError("");
       setDog(null);
 
-      // 1️⃣ Tìm giống chó
-      const breeds = await searchDogByName(keyword);
+      // 🔍 Gọi API MongoDB
+      const dogs = await searchDogByName(keyword);
 
-      if (breeds.length === 0) {
+      if (!dogs || dogs.length === 0) {
         setError("Không tìm thấy giống chó 😢");
-        setLoading(false);
         return;
       }
 
-      const breed = breeds[0];
-
-      // 2️⃣ Lấy ảnh theo breed_id
-      const imgData = await getDogImageByBreedId(breed.id);
-
-      setDog({
-        ...breed,
-        image: imgData[0]?.url
-      });
-
+      //  Lấy con đầu tiên
+      setDog(dogs[0]);
     } catch (err) {
+      console.error(err);
       setError("Có lỗi xảy ra, thử lại sau!");
     } finally {
       setLoading(false);
@@ -57,8 +46,8 @@ const Home = () => {
         {/* LEFT */}
         <div className="home-left">
           <h1>
-            Find a New <br />
-            <span>Pet</span> For You
+            Explore
+             <span> dog breed</span> <br /> you love
           </h1>
 
           <p>
@@ -75,22 +64,23 @@ const Home = () => {
             <button onClick={handleSearch}>🔍</button>
           </div>
 
+          {loading && <p>Đang tìm kiếm...</p>}
           {error && <p className="error">{error}</p>}
         </div>
 
         {/* RIGHT */}
         <div className="home-right">
-       
-
           {!loading && dog && (
             <div className="dog-info">
               <img
-                src={dog.image}
+                src={`http://localhost:3000/images/${dog.image}`}
                 alt={dog.name}
                 className="dog-img"
               />
-
               <h2>{dog.name}</h2>
+              {dog.origin && (
+                <p><b>Origin:</b> {dog.origin}</p>
+              )}
 
               {dog.temperament && (
                 <p><b>Temperament:</b> {dog.temperament}</p>
@@ -98,10 +88,6 @@ const Home = () => {
 
               {dog.life_span && (
                 <p><b>Life span:</b> {dog.life_span}</p>
-              )}
-
-              {dog.weight?.metric && (
-                <p><b>Weight:</b> {dog.weight.metric} kg</p>
               )}
             </div>
           )}

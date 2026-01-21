@@ -1,48 +1,97 @@
 import express from "express";
 import cors from "cors";
-import fetch from "node-fetch";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
+import connectDB from "./config/connectionDB.js";
 
 dotenv.config();
 
+/* =====================
+   INIT APP
+===================== */
 const app = express();
 app.use(cors());
+app.use(express.json());
 
-const BASE_URL = "https://api.thedogapi.com/v1";
-const headers = {
-  "x-api-key": process.env.DOG_API_KEY
-};
+/* =====================
+   STATIC IMAGES
+===================== */
+app.use("/images", express.static("images"));
 
-// 🔍 Search dog by name
-app.get("/api/dogs/search", async (req, res) => {
-  const { q } = req.query;
+/* =====================
+   CONNECT DATABASE
+===================== */
+connectDB();
 
+/* =====================
+   DOG SCHEMA & MODEL
+===================== */
+const dogSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    origin: String,
+    life_span: String,
+    temperament: String,
+    image: String
+  },
+  {
+    collection: "dogs",
+    timestamps: true
+  }
+);
+
+const Dog = mongoose.model("profile-dog", dogSchema);
+
+/* =====================
+   ROUTES
+===================== */
+
+// 🐕 GET ALL DOGS
+app.get("/api/dogs", async (req, res) => {
   try {
-    const response = await fetch(
-      `${BASE_URL}/breeds/search?q=${q}`,
-      { headers }
-    );
-    const data = await response.json();
-    res.json(data);
+    const dogs = await Dog.find();
+    res.json(dogs);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch dogs" });
   }
 });
 
-// 🖼 Get dog image by breed id
-app.get("/api/dogs/image/:id", async (req, res) => {
+// 🔍 SEARCH DOG BY NAME
+app.get("/api/dogs/search", async (req, res) => {
   try {
-    const response = await fetch(
-      `${BASE_URL}/images/search?breed_id=${req.params.id}`,
-      { headers }
-    );
-    const data = await response.json();
-    res.json(data);
+    const { q } = req.query;
+
+    const dogs = await Dog.find({
+      name: { $regex: q || "", $options: "i" }
+    });
+
+    res.json(dogs);
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch image" });
+    res.status(500).json({ error: "Search failed" });
   }
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`Backend running on port ${process.env.PORT}`);
+// 🐶 GET DOG BY ID
+app.get("/api/dogs/:id", async (req, res) => {
+  try {
+    const dog = await Dog.findById(req.params.id);
+
+    if (!dog) {
+      return res.status(404).json({ error: "Dog not found" });
+    }
+
+    res.json(dog);
+  } catch (err) {
+    res.status(400).json({ error: "Invalid dog ID" });
+  }
+});
+
+
+/* =====================
+   START SERVER
+===================== */
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
